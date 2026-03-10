@@ -1,15 +1,17 @@
 """
 Creator Campaign Intelligence Dashboard
-========================================
 
-A 4-page Streamlit dashboard for partnerships teams.
+A 5-page Streamlit dashboard for partnerships teams.
+Built on real YouTube channel data (Global YouTube Statistics 2023).
 
-Run: streamlit run dashboard/app.py
+Usage:
+    streamlit run dashboard/app.py
 """
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 import streamlit as st
 import pandas as pd
@@ -17,16 +19,9 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 
-from src.ingest import load_creators, load_posts, load_benchmarks
-from src.clean import clean_creators, clean_posts
-from src.features import add_post_features, build_creator_features
-from src.scoring import (
-    compute_creator_fit_score,
-    compute_awareness_score,
-    compute_engagement_score,
-    generate_shortlist,
-)
-from src.utils import format_number
+from ingest_real_data import load_scored_channels, load_benchmarks
+from scoring import generate_shortlist
+from utils import COLORS, TIER_ORDER, TIER_LABELS, format_number, format_currency
 
 # --- Page Config ---
 st.set_page_config(
@@ -36,262 +31,395 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# --- Load & Process Data ---
+# --- Load Data ---
 @st.cache_data
 def load_data():
-    creators = clean_creators(load_creators())
-    posts = add_post_features(clean_posts(load_posts()))
+    channels = load_scored_channels()
     benchmarks = load_benchmarks()
-    creators_enriched = build_creator_features(posts, creators)
-    scored = compute_creator_fit_score(creators_enriched)
-    scored = compute_awareness_score(scored)
-    scored = compute_engagement_score(scored)
-    return scored, posts, benchmarks
+    return channels, benchmarks
 
-scored, posts, benchmarks = load_data()
+channels, benchmarks = load_data()
+scored = channels[channels["creator_fit_score"].notna()].copy()
 
 # --- Sidebar ---
 st.sidebar.title("Creator Campaign Intelligence")
-st.sidebar.markdown("*Partnerships Analytics Demo*")
+st.sidebar.caption(
+    "A public-data prototype for creator marketing analytics. "
+    "Built on the Global YouTube Statistics 2023 dataset (990 real channels)."
+)
 page = st.sidebar.radio(
     "Navigate",
-    ["Executive Overview", "Sponsored Content Benchmarking",
-     "Creator Shortlisting", "Partnerships Recap"],
+    [
+        "Executive Overview",
+        "Creator Cohort Benchmarking",
+        "Creator Shortlist",
+        "Campaign Benchmarks",
+        "Client-Facing Recap",
+    ],
 )
+
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "**Data:** Sample based on Seungbae Kim's Instagram Influencer Dataset schema"
-)
-st.sidebar.markdown(
-    "**Benchmarks:** Public case studies from Humanz / Ubiquitous"
+    "**Data:** [Global YouTube Statistics 2023](https://www.kaggle.com/datasets/nelgiriyewithana/global-youtube-statistics-2023)  \n"
+    "**Benchmarks:** [Humanz](https://humanz.com) / [Ubiquitous](https://ubiquitousinfluence.com) case studies"
 )
 
-# === PAGE 1: EXECUTIVE OVERVIEW ===
+
+# ============================================================
+# PAGE 1: Executive Overview
+# ============================================================
 if page == "Executive Overview":
     st.title("Executive Overview")
-    st.markdown("High-level metrics for the partnerships team.")
+    st.caption("Key metrics across 990 real YouTube channels")
 
-    # KPI row
-    col1, col2, col3, col4, col5 = st.columns(5)
-    col1.metric("Creators Analyzed", format_number(len(scored)))
-    col2.metric("Posts Analyzed", format_number(len(posts)))
-    col3.metric("Sponsored Share", f"{posts['is_sponsored'].mean()*100:.1f}%")
-    col4.metric("Avg Engagement Rate", f"{posts['engagement_rate'].mean():.2f}%")
-    col5.metric("Content Categories", str(scored['category'].nunique()))
-
-    st.markdown("---")
-
-    # Two columns
-    left, right = st.columns(2)
-
-    with left:
-        st.subheader("Creators by Follower Tier")
-        tier_order = ["nano", "micro", "mid", "macro", "mega"]
-        tier_counts = scored["follower_tier"].value_counts().reindex(tier_order).reset_index()
-        tier_counts.columns = ["Tier", "Count"]
-        fig = px.bar(tier_counts, x="Tier", y="Count",
-                     color="Tier", color_discrete_sequence=px.colors.sequential.Blues_r)
-        fig.update_layout(showlegend=False, height=350)
-        st.plotly_chart(fig, use_container_width=True)
-
-    with right:
-        st.subheader("Engagement Rate by Tier")
-        tier_er = scored.groupby("follower_tier")["avg_engagement_rate"].median().reindex(tier_order).reset_index()
-        tier_er.columns = ["Tier", "Median ER (%)"]
-        fig = px.bar(tier_er, x="Tier", y="Median ER (%)",
-                     color="Tier", color_discrete_sequence=px.colors.sequential.Blues_r)
-        fig.update_layout(showlegend=False, height=350)
-        st.plotly_chart(fig, use_container_width=True)
-
-    # Category table
-    st.subheader("Category Benchmarks")
-    cat_summary = scored.groupby("category").agg(
-        creators=("creator_id", "count"),
-        avg_followers=("followers", "mean"),
-        avg_er=("avg_engagement_rate", "mean"),
-        avg_sponsored_rate=("sponsored_post_rate", "mean"),
-    ).round(2).sort_values("avg_er", ascending=False)
-    cat_summary["avg_followers"] = cat_summary["avg_followers"].apply(format_number)
-    cat_summary["avg_sponsored_rate"] = (cat_summary["avg_sponsored_rate"] * 100).round(1).astype(str) + "%"
-    st.dataframe(cat_summary, use_container_width=True)
-
-    # Benchmark snippets
-    st.subheader("Industry Benchmarks (Public Case Studies)")
-    st.dataframe(
-        benchmarks[["campaign", "brand", "agency", "views", "impressions", "cpm_usd", "engagements"]],
-        use_container_width=True,
+    # KPI cards
+    c1, c2, c3, c4, c5 = st.columns(5)
+    c1.metric("Channels Analyzed", f"{len(channels):,}")
+    c2.metric("With Complete Scores", f"{len(scored):,}")
+    c3.metric("Categories", f"{channels['category'].nunique()}")
+    c4.metric("Countries", f"{channels['country'].nunique()}")
+    c5.metric(
+        "Median Fit Score",
+        f"{scored['creator_fit_score'].median():.1f}",
     )
 
-# === PAGE 2: SPONSORED CONTENT BENCHMARKING ===
-elif page == "Sponsored Content Benchmarking":
-    st.title("Sponsored Content Benchmarking")
-    st.markdown("How does sponsored content perform compared to organic?")
+    st.markdown("---")
 
-    # Overall comparison
-    col1, col2, col3 = st.columns(3)
-    sp = posts[posts["is_sponsored"]]
-    org = posts[~posts["is_sponsored"]]
-    col1.metric("Sponsored Avg ER", f"{sp['engagement_rate'].mean():.2f}%")
-    col2.metric("Organic Avg ER", f"{org['engagement_rate'].mean():.2f}%")
-    delta = sp["engagement_rate"].mean() - org["engagement_rate"].mean()
-    col3.metric("ER Gap", f"{delta:+.2f}%")
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("Channels by Category")
+        cat_counts = (
+            channels["category"]
+            .value_counts()
+            .head(12)
+            .reset_index()
+        )
+        cat_counts.columns = ["Category", "Count"]
+        fig = px.bar(
+            cat_counts,
+            x="Count",
+            y="Category",
+            orientation="h",
+            color_discrete_sequence=[COLORS["primary"]],
+        )
+        fig.update_layout(height=400, margin=dict(l=0, r=0, t=10, b=0), yaxis=dict(autorange="reversed"))
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+        st.subheader("Channels by Follower Tier")
+        tier_counts = (
+            channels["follower_tier"]
+            .value_counts()
+            .reindex(TIER_ORDER)
+            .reset_index()
+        )
+        tier_counts.columns = ["Tier", "Count"]
+        tier_counts["Label"] = tier_counts["Tier"].map(TIER_LABELS)
+        fig = px.bar(
+            tier_counts,
+            x="Label",
+            y="Count",
+            color_discrete_sequence=[COLORS["secondary"]],
+        )
+        fig.update_layout(height=400, margin=dict(l=0, r=0, t=10, b=0))
+        st.plotly_chart(fig, use_container_width=True)
+
+    st.subheader("Top 15 Countries")
+    country_counts = (
+        channels["country"]
+        .value_counts()
+        .head(15)
+        .reset_index()
+    )
+    country_counts.columns = ["Country", "Channels"]
+    fig = px.bar(
+        country_counts,
+        x="Channels",
+        y="Country",
+        orientation="h",
+        color_discrete_sequence=[COLORS["accent"]],
+    )
+    fig.update_layout(height=400, margin=dict(l=0, r=0, t=10, b=0), yaxis=dict(autorange="reversed"))
+    st.plotly_chart(fig, use_container_width=True)
+
+
+# ============================================================
+# PAGE 2: Creator Cohort Benchmarking
+# ============================================================
+elif page == "Creator Cohort Benchmarking":
+    st.title("Creator Cohort Benchmarking")
+    st.caption("Performance comparisons by tier, category, and geography")
+
+    st.subheader("Scores by Follower Tier")
+    tier_scores = (
+        scored.groupby("follower_tier")[
+            ["creator_fit_score", "awareness_score", "engagement_suitability_score"]
+        ]
+        .mean()
+        .reindex(TIER_ORDER)
+        .round(1)
+        .reset_index()
+    )
+    tier_scores["Label"] = tier_scores["follower_tier"].map(TIER_LABELS)
+    fig = go.Figure()
+    for col, name, color in [
+        ("creator_fit_score", "Fit Score", COLORS["primary"]),
+        ("awareness_score", "Awareness", COLORS["secondary"]),
+        ("engagement_suitability_score", "Engagement", COLORS["success"]),
+    ]:
+        fig.add_trace(
+            go.Bar(x=tier_scores["Label"], y=tier_scores[col], name=name, marker_color=color)
+        )
+    fig.update_layout(barmode="group", height=400, margin=dict(l=0, r=0, t=30, b=0))
+    st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("---")
 
-    # By tier
-    st.subheader("Sponsored vs Organic ER by Follower Tier")
-    tier_comp = posts.groupby(["follower_tier", "is_sponsored"])["engagement_rate"].mean().reset_index()
-    tier_comp["Type"] = tier_comp["is_sponsored"].map({True: "Sponsored", False: "Organic"})
-    fig = px.bar(tier_comp, x="follower_tier", y="engagement_rate", color="Type",
-                 barmode="group", category_orders={"follower_tier": ["nano", "micro", "mid", "macro", "mega"]},
-                 color_discrete_map={"Organic": "#2563EB", "Sponsored": "#F59E0B"})
-    fig.update_layout(height=400, yaxis_title="Avg Engagement Rate (%)")
+    st.subheader("Engagement Proxy by Category")
+    cat_eng = (
+        scored[scored["category"].notna()]
+        .groupby("category")
+        .agg(
+            channels=("channel_name", "count"),
+            avg_engagement=("engagement_proxy", "mean"),
+            avg_momentum=("momentum_score", "mean"),
+        )
+        .sort_values("avg_engagement", ascending=False)
+        .round(1)
+        .reset_index()
+    )
+    cat_eng = cat_eng[cat_eng["channels"] >= 5]
+    fig = px.scatter(
+        cat_eng,
+        x="avg_engagement",
+        y="avg_momentum",
+        size="channels",
+        text="category",
+        color_discrete_sequence=[COLORS["primary"]],
+    )
+    fig.update_traces(textposition="top center")
+    fig.update_layout(
+        height=500,
+        xaxis_title="Avg Engagement Proxy (Views/Sub)",
+        yaxis_title="Avg Momentum Score",
+        margin=dict(l=0, r=0, t=30, b=0),
+    )
     st.plotly_chart(fig, use_container_width=True)
 
-    # By category
-    st.subheader("Sponsored ER Lift by Category")
-    cat_comp = posts.groupby(["category", "is_sponsored"])["engagement_rate"].mean().unstack()
-    cat_comp.columns = ["Organic", "Sponsored"]
-    cat_comp["Lift (%)"] = ((cat_comp["Sponsored"] - cat_comp["Organic"]) / cat_comp["Organic"] * 100).round(1)
-    cat_comp = cat_comp.sort_values("Lift (%)", ascending=False)
-    fig = px.bar(cat_comp.reset_index(), x="Lift (%)", y="category", orientation="h",
-                 color="Lift (%)", color_continuous_scale=["#EF4444", "#F59E0B", "#10B981"])
-    fig.update_layout(height=500, yaxis_title="")
-    st.plotly_chart(fig, use_container_width=True)
 
-    # Posting frequency
-    st.subheader("Engagement by Posting Hour")
-    time_er = posts.groupby(["post_hour", "is_sponsored"])["engagement_rate"].mean().reset_index()
-    time_er["Type"] = time_er["is_sponsored"].map({True: "Sponsored", False: "Organic"})
-    fig = px.line(time_er, x="post_hour", y="engagement_rate", color="Type",
-                  color_discrete_map={"Organic": "#2563EB", "Sponsored": "#F59E0B"})
-    fig.update_layout(height=350, xaxis_title="Hour of Day", yaxis_title="Avg ER (%)")
-    st.plotly_chart(fig, use_container_width=True)
+# ============================================================
+# PAGE 3: Creator Shortlist
+# ============================================================
+elif page == "Creator Shortlist":
+    st.title("Creator Shortlist")
+    st.caption("Objective-driven shortlists for partnerships teams")
 
-# === PAGE 3: CREATOR SHORTLISTING ===
-elif page == "Creator Shortlisting":
-    st.title("Creator Shortlisting")
-    st.markdown("Identify high-fit creators for brand campaigns.")
+    objective = st.selectbox(
+        "Campaign Objective",
+        ["balanced", "awareness", "engagement"],
+        format_func=lambda x: {
+            "balanced": "Balanced (overall fit)",
+            "awareness": "Awareness (reach-focused)",
+            "engagement": "Engagement (interaction-focused)",
+        }[x],
+    )
+    top_n = st.slider("Number of creators", 10, 50, 20)
 
-    # Objective selector
-    objective = st.selectbox("Campaign Objective", ["Balanced", "Awareness", "Engagement"])
-    top_n = st.slider("Shortlist Size", 10, 50, 30)
-
-    obj_map = {"Balanced": "balanced", "Awareness": "awareness", "Engagement": "engagement"}
-    shortlist = generate_shortlist(scored, top_n=top_n, objective=obj_map[objective])
-
-    # KPIs
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Shortlisted Creators", len(shortlist))
-    col2.metric("Avg Fit Score", f"{shortlist['creator_fit_score'].mean():.1f}")
-    col3.metric("Avg ER", f"{shortlist['avg_engagement_rate'].mean():.2f}%")
+    shortlist = generate_shortlist(scored, objective=objective, top_n=top_n)
 
     # Quadrant chart
     st.subheader("Awareness vs Engagement Quadrant")
     fig = px.scatter(
-        scored, x="awareness_score", y="engagement_suitability_score",
-        color="follower_tier", size="creator_fit_score",
-        hover_data=["creator_id", "category", "followers"],
-        category_orders={"follower_tier": ["nano", "micro", "mid", "macro", "mega"]},
-        color_discrete_sequence=px.colors.sequential.Blues_r,
-        opacity=0.6,
+        scored,
+        x="awareness_score",
+        y="engagement_suitability_score",
+        color="follower_tier",
+        category_orders={"follower_tier": TIER_ORDER},
+        opacity=0.5,
+        hover_data=["channel_name", "category", "subscribers"],
     )
-    aw_med = scored["awareness_score"].median()
-    en_med = scored["engagement_suitability_score"].median()
-    fig.add_hline(y=en_med, line_dash="dash", line_color="gray", opacity=0.4)
-    fig.add_vline(x=aw_med, line_dash="dash", line_color="gray", opacity=0.4)
-    fig.update_layout(height=500, xaxis_title="Awareness Score", yaxis_title="Engagement Score")
+    # Highlight shortlisted
+    fig.add_trace(
+        go.Scatter(
+            x=shortlist["awareness_score"],
+            y=shortlist["engagement_suitability_score"],
+            mode="markers",
+            marker=dict(size=12, color=COLORS["danger"], symbol="star"),
+            name="Shortlisted",
+            text=shortlist["channel_name"],
+            hoverinfo="text",
+        )
+    )
+    fig.update_layout(height=550, margin=dict(l=0, r=0, t=30, b=0))
     st.plotly_chart(fig, use_container_width=True)
 
-    # Shortlist table
-    st.subheader(f"Top {top_n} Creators — {objective} Objective")
+    # Table
+    st.subheader(f"Shortlist ({objective.title()}) — Top {top_n}")
     display_cols = [
-        "rank", "creator_id", "category", "follower_tier", "followers",
-        "avg_engagement_rate", "sponsored_er", "creator_fit_score",
-        "awareness_score", "engagement_suitability_score", "recommendation",
+        "rank",
+        "channel_name",
+        "category",
+        "follower_tier",
+        "subscribers",
+        "creator_fit_score",
+        "awareness_score",
+        "engagement_suitability_score",
+        "risk_flag_count",
+        "recommendation",
     ]
-    st.dataframe(shortlist[display_cols], use_container_width=True, hide_index=True)
-
-    # Tier distribution in shortlist
-    st.subheader("Shortlist Tier Mix")
-    tier_mix = shortlist["follower_tier"].value_counts().reset_index()
-    tier_mix.columns = ["Tier", "Count"]
-    fig = px.pie(tier_mix, values="Count", names="Tier",
-                 color_discrete_sequence=px.colors.sequential.Blues_r)
-    fig.update_layout(height=350)
-    st.plotly_chart(fig, use_container_width=True)
-
-# === PAGE 4: PARTNERSHIPS RECAP ===
-elif page == "Partnerships Recap":
-    st.title("Partnerships Recap")
-    st.markdown("Summary insights for client-facing teams — what to tell the client.")
-
-    st.markdown("---")
-
-    st.subheader("1. Key Findings")
-    st.markdown("""
-    - **Micro and mid-tier creators** deliver the strongest combination of engagement quality and
-      sponsored content reliability across our dataset of 500 creators and ~25K posts
-    - **Sponsored content shows a moderate engagement dip on average**, but specific categories
-      and creator profiles maintain strong performance — the gap is not universal
-    - **Posting consistency** is a reliable predictor of sustained engagement quality
-    """)
-
-    st.subheader("2. Recommended Creator Mix")
-    col1, col2, col3 = st.columns(3)
-    col1.markdown("""
-    **Awareness Plays**
-    - Macro/mega creators for reach
-    - Focus on categories with broad appeal
-    - Target 50K+ followers
-    """)
-    col2.markdown("""
-    **Engagement Plays**
-    - Micro/nano creators for interaction
-    - Niche categories with loyal audiences
-    - Prioritize high comment-to-like ratios
-    """)
-    col3.markdown("""
-    **Balanced Campaigns**
-    - Mid-tier creators as anchors
-    - Mix 2-3 categories for diversity
-    - Weight consistency in selection
-    """)
-
-    st.subheader("3. KPI Focus Areas")
-    st.markdown("""
-    | KPI | Benchmark Range | Source |
-    |-----|----------------|--------|
-    | CPM | $1.47 – $11.00 | Ubiquitous case studies |
-    | Engagement Rate | 0.5% – 8.0% | Varies by tier |
-    | Sponsored ER Lift | -15% to +5% typical | Dataset analysis |
-    | Impressions per campaign | 2.9M – 8.1M | Humanz / Ubiquitous cases |
-    """)
-
-    st.subheader("4. What to Monitor")
-    st.markdown("""
-    - **Sponsored engagement decay:** Track whether individual creators' sponsored ER drops over
-      successive brand collaborations
-    - **Category saturation:** Some categories show diminishing sponsored engagement returns as
-      sponsored post rates increase
-    - **Posting cadence changes:** Creators who shift from consistent to irregular posting may
-      signal disengagement
-    """)
-
-    st.subheader("5. What to Test Next")
-    st.markdown("""
-    - **A/B test creator tiers:** Run parallel micro vs mid-tier campaigns for the same brand to
-      quantify the engagement vs reach tradeoff
-    - **Hashtag optimization:** Moderate hashtag counts (5-15) correlate with better sponsored ER — test
-      this as a content guideline
-    - **Time-of-day scheduling:** Sponsored and organic posts show different hourly engagement
-      patterns — test optimized posting windows
-    """)
-
-    st.markdown("---")
-    st.markdown(
-        "*This dashboard uses sample data based on the schema of Seungbae Kim's Instagram "
-        "Influencer Dataset. Benchmarks are sourced from public Humanz / Ubiquitous case studies. "
-        "For a production deployment, this pipeline would connect to live campaign data and "
-        "real-time creator APIs.*"
+    st.dataframe(
+        shortlist[display_cols].reset_index(drop=True),
+        use_container_width=True,
+        height=min(len(shortlist) * 40 + 40, 600),
     )
+
+
+# ============================================================
+# PAGE 4: Campaign Benchmarks
+# ============================================================
+elif page == "Campaign Benchmarks":
+    st.title("Campaign Benchmarks")
+    st.caption(
+        "Public KPIs from official Humanz and Ubiquitous case studies. "
+        "Every value is source-attributed."
+    )
+
+    st.dataframe(
+        benchmarks[
+            [
+                "campaign",
+                "brand",
+                "agency",
+                "platform",
+                "views",
+                "impressions",
+                "cpm_usd",
+                "engagements",
+                "paid_clicks",
+                "conversions_new_users",
+                "source_url",
+            ]
+        ],
+        use_container_width=True,
+    )
+
+    st.markdown("---")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("CPM Benchmarks")
+        cpm_data = benchmarks[benchmarks["cpm_usd"].notna()].sort_values("cpm_usd")
+        fig = px.bar(
+            cpm_data,
+            x="cpm_usd",
+            y="campaign",
+            orientation="h",
+            color="cpm_usd",
+            color_continuous_scale=["#10B981", "#F59E0B", "#EF4444"],
+            text="cpm_usd",
+        )
+        fig.update_traces(texttemplate="$%{text:.2f}", textposition="outside")
+        fig.update_layout(
+            height=300,
+            margin=dict(l=0, r=0, t=10, b=0),
+            coloraxis_showscale=False,
+            yaxis=dict(autorange="reversed"),
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+        st.subheader("Views Benchmarks")
+        views_data = benchmarks[benchmarks["views"].notna()].sort_values(
+            "views", ascending=False
+        )
+        fig = px.bar(
+            views_data,
+            x="views",
+            y="campaign",
+            orientation="h",
+            color_discrete_sequence=[COLORS["primary"]],
+        )
+        fig.update_layout(
+            height=300,
+            margin=dict(l=0, r=0, t=10, b=0),
+            yaxis=dict(autorange="reversed"),
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+    st.info(
+        "These benchmarks are from official public case study pages. "
+        "They provide directional context for campaign planning, not guaranteed outcomes."
+    )
+
+
+# ============================================================
+# PAGE 5: Client-Facing Recap
+# ============================================================
+elif page == "Client-Facing Recap":
+    st.title("Client-Facing Recap")
+    st.caption("A summary a partnerships team could share with stakeholders")
+
+    st.markdown("""
+    ### What We Analyzed
+
+    We evaluated **{channels} YouTube channels** from the Global YouTube Statistics 2023 dataset
+    across **{categories} content categories** and **{countries} countries** to identify high-fit
+    creators for brand partnership campaigns.
+
+    ### Key Findings
+
+    **1. The dataset's top-performing channels cluster in Entertainment and Music.**
+    These categories dominate both subscriber counts and total view volume. However,
+    categories like Education and How-To show higher engagement proxies relative to
+    their audience size, making them strong candidates for engagement-focused campaigns.
+
+    **2. Momentum and size are not strongly correlated.**
+    Some mid-tier channels (12–30M subscribers) are growing faster than mega channels (100M+).
+    Partnerships teams should weight recent momentum alongside absolute size when shortlisting.
+
+    **3. Star Creators — those scoring high on both awareness and engagement — are rare.**
+    Most channels specialize in one dimension. A well-constructed campaign brief should
+    specify whether the goal is reach or interaction, then select creators accordingly.
+
+    **4. Risk flags matter.**
+    {risk_count} channels in this dataset have 3+ risk flags (missing data, negative growth,
+    or potential network/compilation channels). These should be reviewed manually before
+    inclusion in any shortlist.
+
+    ### What We Recommend
+
+    - **For awareness campaigns:** Prioritize channels in the macro/mega tiers with strong
+      30-day views momentum and high upload volume.
+    - **For engagement campaigns:** Look at mid-tier channels with high views-per-subscriber
+      ratios, positive subscriber momentum, and consistent posting history.
+    - **For balanced campaigns:** Use the Creator Fit Score to surface well-rounded channels
+      that perform across multiple dimensions.
+
+    ### Benchmark Context
+
+    Public case studies from Humanz and Ubiquitous show that real campaigns achieve:
+    - CPMs ranging from **$1.47 to $11.00**
+    - Campaign views of **5M–9M+**
+    - Engagement results of **225K+ interactions** and **6x industry-standard rates**
+
+    These provide directional guidance for client expectations.
+
+    ### Limitations
+
+    - This analysis uses **public channel-level data**, not proprietary campaign exports
+    - **Per-video engagement** (likes, comments per video) is not available in this dataset
+    - **Spend, click, and conversion data** are not included — true ROI requires ad platform integration
+    - Tier labels in this dataset reflect the top ~1,000 global channels (all 12M+ subscribers),
+      not the standard nano/micro/macro taxonomy used in typical influencer marketing
+
+    ---
+
+    *Analysis produced as part of the Creator Campaign Intelligence portfolio project.*
+    """.format(
+        channels=len(channels),
+        categories=channels["category"].nunique(),
+        countries=channels["country"].nunique(),
+        risk_count=len(scored[scored["risk_flag_count"] >= 3]),
+    ))

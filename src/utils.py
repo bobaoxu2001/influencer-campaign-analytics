@@ -8,7 +8,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 
-# Color palette — modern, professional
+# Color palette — modern, professional, business-facing
 COLORS = {
     "primary": "#2563EB",
     "secondary": "#7C3AED",
@@ -20,8 +20,17 @@ COLORS = {
     "text": "#111827",
 }
 
-TIER_ORDER = ["nano", "micro", "mid", "macro", "mega"]
+TIER_ORDER = ["mid", "macro_low", "macro", "mega", "mega_plus"]
+TIER_LABELS = {
+    "mid": "12–15M",
+    "macro_low": "15–30M",
+    "macro": "30–60M",
+    "mega": "60–100M",
+    "mega_plus": "100M+",
+}
 TIER_COLORS = ["#93C5FD", "#60A5FA", "#3B82F6", "#2563EB", "#1D4ED8"]
+
+CATEGORY_COLORS = px.colors.qualitative.Set2
 
 
 def set_plot_style():
@@ -47,33 +56,24 @@ def set_plot_style():
 
 
 def format_number(n):
-    """Format large numbers for display (1.2K, 3.4M, etc.)."""
-    if n >= 1_000_000:
+    """Format large numbers for display (1.2K, 3.4M, 5.6B, etc.)."""
+    if n is None or (isinstance(n, float) and n != n):
+        return "N/A"
+    if abs(n) >= 1_000_000_000:
+        return f"{n/1_000_000_000:.1f}B"
+    elif abs(n) >= 1_000_000:
         return f"{n/1_000_000:.1f}M"
-    elif n >= 1_000:
+    elif abs(n) >= 1_000:
         return f"{n/1_000:.1f}K"
     return str(int(n))
 
 
-def create_kpi_card_figure(kpis):
-    """
-    Create a plotly figure with KPI cards.
-    kpis: list of dicts with 'label', 'value', 'delta' (optional)
-    """
-    fig = go.Figure()
-    n = len(kpis)
-    for i, kpi in enumerate(kpis):
-        fig.add_trace(go.Indicator(
-            mode="number+delta" if "delta" in kpi else "number",
-            value=kpi["value"],
-            delta=kpi.get("delta"),
-            title={"text": kpi["label"], "font": {"size": 14}},
-            number={"font": {"size": 28}},
-            domain={"x": [i/n, (i+1)/n], "y": [0, 1]},
-        ))
-    fig.update_layout(
-        height=120,
-        margin=dict(l=20, r=20, t=40, b=20),
-        paper_bgcolor="white",
-    )
-    return fig
+def format_currency(n):
+    """Format currency values."""
+    if n is None or (isinstance(n, float) and n != n):
+        return "N/A"
+    if abs(n) >= 1_000_000:
+        return f"${n/1_000_000:.1f}M"
+    elif abs(n) >= 1_000:
+        return f"${n/1_000:.1f}K"
+    return f"${n:,.0f}"

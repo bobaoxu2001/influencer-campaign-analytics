@@ -1,55 +1,67 @@
--- Creator-Level Performance Metrics
--- Used by partnerships teams to evaluate creator baselines
+-- Creator Metrics — Core KPIs for Partnerships Teams
+-- Compatible with DuckDB. Run against channels_scored.csv.
 
--- Overall creator performance summary
+-- 1. Channel overview with key performance metrics
 SELECT
-    c.creator_id,
-    c.username,
-    c.category,
-    c.follower_tier,
-    c.followers,
-    c.avg_engagement_rate,
-    c.sponsored_post_rate,
-    COUNT(p.post_id) AS total_posts,
-    SUM(CASE WHEN p.is_sponsored THEN 1 ELSE 0 END) AS sponsored_posts,
-    SUM(CASE WHEN NOT p.is_sponsored THEN 1 ELSE 0 END) AS organic_posts,
-    ROUND(AVG(p.engagement_rate), 2) AS overall_avg_er,
-    ROUND(AVG(CASE WHEN p.is_sponsored THEN p.engagement_rate END), 2) AS sponsored_avg_er,
-    ROUND(AVG(CASE WHEN NOT p.is_sponsored THEN p.engagement_rate END), 2) AS organic_avg_er,
-    ROUND(AVG(p.likes), 0) AS avg_likes,
-    ROUND(AVG(p.comments), 0) AS avg_comments,
-    ROUND(AVG(p.comments) / NULLIF(AVG(p.likes), 0) * 100, 2) AS comment_to_like_ratio
-FROM creators c
-LEFT JOIN posts p ON c.creator_id = p.creator_id
-GROUP BY c.creator_id, c.username, c.category, c.follower_tier,
-         c.followers, c.avg_engagement_rate, c.sponsored_post_rate
-ORDER BY c.followers DESC;
+    channel_name,
+    category,
+    channel_type,
+    country,
+    follower_tier,
+    subscribers,
+    total_views,
+    uploads,
+    ROUND(avg_views_per_video, 0) AS avg_views_per_video,
+    ROUND(views_per_subscriber, 2) AS views_per_sub,
+    ROUND(views_last_30d, 0) AS views_last_30d,
+    ROUND(subs_gained_last_30d, 0) AS subs_gained_30d,
+    ROUND(est_monthly_earnings_mid, 0) AS est_monthly_earnings,
+    channel_age_years
+FROM channels
+ORDER BY subscribers DESC;
 
 
--- Category-level benchmarks
+-- 2. Category-level benchmarks
 SELECT
-    c.category,
-    COUNT(DISTINCT c.creator_id) AS creators,
-    ROUND(AVG(c.followers), 0) AS avg_followers,
-    ROUND(AVG(c.avg_engagement_rate), 2) AS avg_er,
-    ROUND(AVG(c.sponsored_post_rate) * 100, 1) AS avg_sponsored_pct,
-    ROUND(AVG(CASE WHEN p.is_sponsored THEN p.engagement_rate END), 2) AS sponsored_er,
-    ROUND(AVG(CASE WHEN NOT p.is_sponsored THEN p.engagement_rate END), 2) AS organic_er
-FROM creators c
-LEFT JOIN posts p ON c.creator_id = p.creator_id
-GROUP BY c.category
-ORDER BY avg_er DESC;
+    category,
+    COUNT(*) AS channels,
+    ROUND(AVG(subscribers), 0) AS avg_subscribers,
+    ROUND(AVG(total_views), 0) AS avg_total_views,
+    ROUND(AVG(avg_views_per_video), 0) AS avg_views_per_video,
+    ROUND(AVG(views_per_subscriber), 2) AS avg_views_per_sub,
+    ROUND(AVG(views_last_30d), 0) AS avg_30d_views,
+    ROUND(AVG(uploads), 0) AS avg_uploads
+FROM channels
+WHERE category IS NOT NULL
+GROUP BY category
+HAVING COUNT(*) >= 5
+ORDER BY avg_views_per_sub DESC;
 
 
--- Follower tier benchmarks
+-- 3. Tier-level benchmarks
 SELECT
-    c.follower_tier,
-    COUNT(DISTINCT c.creator_id) AS creators,
-    ROUND(AVG(c.followers), 0) AS avg_followers,
-    ROUND(AVG(c.avg_engagement_rate), 2) AS avg_er,
-    ROUND(PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY c.avg_engagement_rate), 2) AS er_p25,
-    ROUND(PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY c.avg_engagement_rate), 2) AS er_median,
-    ROUND(PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY c.avg_engagement_rate), 2) AS er_p75
-FROM creators c
-GROUP BY c.follower_tier
-ORDER BY avg_followers;
+    follower_tier,
+    COUNT(*) AS channels,
+    ROUND(AVG(subscribers), 0) AS avg_subscribers,
+    ROUND(AVG(total_views), 0) AS avg_total_views,
+    ROUND(AVG(views_per_subscriber), 2) AS avg_views_per_sub,
+    ROUND(AVG(posting_intensity), 1) AS avg_posting_intensity,
+    ROUND(AVG(momentum_score), 1) AS avg_momentum_score,
+    ROUND(AVG(consistency_score), 1) AS avg_consistency_score
+FROM channels_scored
+GROUP BY follower_tier
+ORDER BY avg_subscribers;
+
+
+-- 4. Country-level distribution
+SELECT
+    country,
+    COUNT(*) AS channels,
+    ROUND(AVG(subscribers), 0) AS avg_subscribers,
+    ROUND(SUM(total_views), 0) AS total_views,
+    ROUND(AVG(views_per_subscriber), 2) AS avg_views_per_sub
+FROM channels
+WHERE country IS NOT NULL
+GROUP BY country
+HAVING COUNT(*) >= 5
+ORDER BY channels DESC;

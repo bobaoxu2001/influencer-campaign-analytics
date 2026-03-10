@@ -1,0 +1,58 @@
+=== DATA VALIDATION REPORT ===
+Source: Global YouTube Statistics 2023 (real data)
+Channels loaded: 990
+Placeholder channels removed: 5
+
+--- Null Rates ---
+  rank: 0.0
+  channel_name: 0.0
+  subscribers: 0.0
+  total_views: 0.0
+  category: 0.041
+  channel_title: 0.0
+  uploads: 0.0
+  country: 0.118 ⚠
+  country_code: 0.118 ⚠
+  channel_type: 0.028
+  views_rank: 0.001
+  country_rank: 0.112 ⚠
+  type_rank: 0.03
+  views_last_30d: 0.052
+  est_monthly_earnings_low: 0.0
+  est_monthly_earnings_high: 0.0
+  est_yearly_earnings_low: 0.0
+  est_yearly_earnings_high: 0.0
+  subs_gained_last_30d: 0.336 ⚠
+  created_year: 0.005
+  created_month: 0.005
+  created_date: 0.005
+  avg_views_per_video: 0.038
+  est_monthly_earnings_mid: 0.0
+  channel_age_years: 0.005
+  views_per_subscriber: 0.0
+  views_30d_pct_of_total: 0.055
+  sub_growth_rate_30d: 0.336 ⚠
+  follower_tier: 0.0
+
+--- Duplicates ---
+  Duplicate channel names: 0
+  Duplicate ranks: 0
+
+--- Value Ranges ---
+  Subscribers: 12,300,000 – 245,000,000
+  Total views: 0 – 228,000,000,000
+  Uploads: 0 – 301,308
+  Categories: 18
+  Countries: 49
+
+--- Tier Distribution ---
+  macro_low: 520
+  mid: 302
+  macro: 142
+  mega: 18
+  mega_plus: 8
+
+--- Synthetic Data Check ---
+  All rows come from the original dataset: YES
+  Fabricated rows added: NONE
+  Source verified: Global YouTube Statistics 2023
