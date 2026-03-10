@@ -1,18 +1,8 @@
 # Creator Campaign Intelligence for Partnerships Teams
 
-> **Prototype project.** This repo demonstrates creator analytics workflow using public data. It is not a production system and does not use proprietary campaign data. See [Limitations](#limitations) for details.
+> **Prototype project.** Built with public data to demonstrate creator analytics workflow. Not a production system. See [Limitations](#limitations).
 
-A data analytics prototype that scores, segments, and shortlists YouTube creators by campaign objective — built to show how a data analyst supports partnerships teams at companies like [Humanz](https://humanz.com) and [Ubiquitous](https://ubiquitousinfluence.com).
-
-- **990 real YouTube channels** scored across three composite dimensions (overall fit, awareness, engagement suitability)
-- **Tier-based segmentation** reveals how creator size relates to engagement efficiency and momentum
-- **Objective-driven shortlists** with risk-flag filtering for awareness, engagement, and balanced campaigns
-- **Benchmarked against public campaign KPIs** from Humanz and Ubiquitous case studies (CPM $4–$11 range)
-- **Client-ready deliverables** including quadrant charts, leaderboards, and a recap memo
-
----
-
-## Dashboard Screenshots
+Scores, segments, and shortlists 990 real YouTube creators by campaign objective — awareness, engagement, or balanced fit.
 
 | Awareness vs Engagement Quadrant | Creator Leaderboard |
 |---|---|
@@ -21,6 +11,13 @@ A data analytics prototype that scores, segments, and shortlists YouTube creator
 | Composite Scores by Tier | Tier Segmentation |
 |---|---|
 | ![Scores by Tier](dashboard/screenshots/scores_by_tier.png) | ![Tier Segmentation](dashboard/screenshots/tier_segmentation.png) |
+
+### What This Demonstrates
+
+- **Composite scoring** across three dimensions (fit, awareness, engagement suitability) on 990 real YouTube channels
+- **Tier-based segmentation** showing how creator size relates to engagement efficiency and momentum
+- **Objective-driven shortlists** with risk-flag filtering for awareness, engagement, and balanced campaigns
+- **Benchmarked against public campaign KPIs** from Humanz and Ubiquitous case studies (CPM $4–$11 range)
 
 ---
 
@@ -99,19 +96,19 @@ All key metrics are also defined as SQL queries in `sql/` for use with DuckDB or
 
 ## Key Findings
 
-Based on scoring 990 real YouTube channels across the three composite dimensions:
+From scoring 990 channels across three composite dimensions:
 
-**1. Star Creators are rare — most channels specialize in either awareness or engagement, not both.**
-The awareness vs engagement quadrant chart shows that channels scoring in the top quartile on *both* dimensions are a small minority. Most high-subscriber channels score well on awareness but have below-median engagement suitability scores, while high-engagement channels tend to have smaller (within this dataset) subscriber bases. This tradeoff is the core insight for partnerships teams building multi-creator rosters.
+**1. In this dataset, fewer than 15% of channels score in the top quartile on both awareness and engagement suitability.**
+The quadrant chart confirms that most high-subscriber channels have below-median engagement suitability scores, while channels with high engagement-to-audience ratios tend to cluster in lower subscriber tiers. This supports building multi-creator rosters rather than relying on a single "best" channel.
 
-**2. Mid-tier channels (12–30M subscribers) show stronger momentum than mega channels (100M+).**
-The momentum score, which weights 60% recent views growth and 40% subscriber growth over the trailing 30-day window, is higher on average for the mid and macro_low tiers than for mega_plus channels. This suggests that partnerships teams scouting for rising talent should look beyond raw subscriber count.
+**2. Mid-tier channels (12–30M subscribers) show higher average momentum scores than mega channels (100M+).**
+Momentum score weights 60% trailing-30-day views growth and 40% subscriber growth. In the tier breakdown, mid and macro_low tiers consistently outscore mega_plus on this metric, suggesting that raw subscriber count is a weak proxy for recent growth trajectory.
 
-**3. Category matters more for engagement efficiency than for reach.**
-Entertainment and Music categories dominate total view volume, but Education, How-To, and People/Lifestyle categories show higher engagement proxy values (views/subscribers) relative to their audience size. The scores-by-tier analysis confirms that engagement suitability scores are more evenly distributed across categories than awareness scores.
+**3. Education, How-To, and People/Lifestyle categories show higher engagement proxy values (views/subscribers) than Entertainment or Music, despite lower total view volume.**
+The scores-by-tier analysis shows engagement suitability scores are more evenly distributed across categories than awareness scores, meaning category selection has a larger effect on engagement campaign outcomes than on reach campaigns.
 
-**4. Risk flags meaningfully improve shortlist quality.**
-Channels with 3+ risk flags (missing 30-day data, negative subscriber growth, very high upload volume suggesting network/compilation channels) score lower on the Creator Fit composite even when their raw metrics look strong. Filtering these out before shortlisting reduces false positives in creator recommendations.
+**4. Channels with 3+ risk flags score lower on the Creator Fit composite even when their raw subscriber or view counts are high.**
+Risk flags (missing 30-day data, negative subscriber growth, very high upload volume suggesting network/compilation channels) identify channels where surface metrics overstate partnership suitability. Filtering on risk flags before shortlisting reduces false positives.
 
 ---
 
