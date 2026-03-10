@@ -1,6 +1,6 @@
-# Creator Campaign Intelligence for Partnerships Teams
+# Influencer Campaign Analytics Prototype
 
-> Using real influencer post data to support creator selection, sponsored-content benchmarking, and campaign recommendations.
+> **This repository is an earlier prototype exploring creator campaign analytics workflows.** My latest real-data portfolio version (YouTube Data API–based) is available in a separate repository.
 
 ---
 
@@ -12,7 +12,7 @@ If I were supporting the partnerships team at a creator-marketing platform like 
 2. **Identify high-fit creators** for different campaign objectives
 3. **Summarize campaign-relevant insights** for client-facing teams
 
-This project simulates that workflow. Instead of relying on proprietary campaign exports, this analysis uses real sponsored-post and influencer-performance data to benchmark creator cohorts, compare sponsored vs organic engagement, and generate shortlist recommendations for partnerships teams.
+This project simulates that workflow. It uses a sampled subset of a public influencer dataset (see Data Sources) to benchmark creator cohorts, compare sponsored vs organic engagement, and generate shortlist recommendations for partnerships teams.
 
 ---
 
@@ -45,9 +45,9 @@ Our scoring framework segments creators into four cohorts:
 
 **Seungbae Kim's Instagram Influencer Dataset / Influencer and Brand Dataset**
 - [Harvard Dataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/OQAQWK)
-- 33,935 influencers, 10M+ Instagram posts
+- Full dataset: 33,935 influencers, 10M+ Instagram posts
 - Fields: caption, hashtags, timestamp, sponsorship flag, likes, comments
-- The full dataset is 37GB+. This repo contains a reproducible sampling script and pre-generated sample CSVs (500 creators, ~25K posts)
+- **This repo uses pre-generated sample CSVs** (500 creators, ~25K posts) plus a reproducible sampling script. These samples are a subset of the public dataset — useful for prototyping, not production.
 
 ### Benchmark Layer
 
@@ -95,7 +95,7 @@ All key metrics are also defined as SQL queries in `sql/` for use with DuckDB or
 ## Repo Structure
 
 ```
-humanz-creator-campaign-intelligence/
+influencer-campaign-analytics/
 ├── README.md
 ├── requirements.txt
 ├── .gitignore
@@ -177,9 +177,15 @@ Based on this analysis, a partnerships team could:
 
 ---
 
+## Prototype / Archived Status
+
+This repo is retained as an **earlier concept version** of creator campaign analytics work. It uses sampled public data and demonstrates the methodology; it is not actively developed. The approach is preserved for reference.
+
+---
+
 ## Limitations
 
-- **Sample data, not proprietary campaigns.** This project uses publicly available influencer data as a proxy. In a production setting, this pipeline would connect to live campaign data and creator APIs
+- **Sample data, not proprietary campaigns.** This project uses a sampled subset of a public influencer dataset as a proxy. In a production setting, this pipeline would connect to live campaign data and creator APIs
 - **No spend or conversion data.** The primary dataset does not include ad spend, clicks, or conversions. ROI calculations would require integration with ad platform data
 - **Instagram only.** This analysis covers Instagram. A full partnerships analytics stack would include TikTok and YouTube
 - **Benchmark directional, not definitive.** Public case study KPIs provide context but may not reflect current market rates
@@ -199,9 +205,9 @@ Based on this analysis, a partnerships team could:
 
 ## LinkedIn / Email Summary
 
-> **Creator Campaign Intelligence for Partnerships Teams**
+> **Influencer Campaign Analytics Prototype**
 >
-> Built an end-to-end analytics pipeline that simulates how a data analyst would support a creator-marketing partnerships team. Using real public influencer data (500 creators, 25K+ posts), developed a scoring framework to benchmark sponsored content performance, segment creators by campaign objective, and generate shortlist recommendations for client-facing teams — with methodology grounded in public benchmarks from companies like Humanz and Ubiquitous.
+> Built an earlier prototype of a creator campaign analytics pipeline. Using a sampled public influencer dataset (500 creators, 25K+ posts from Harvard Dataverse), developed a scoring framework to benchmark sponsored content performance, segment creators by campaign objective, and generate shortlist recommendations — with methodology grounded in public benchmarks from companies like Humanz and Ubiquitous.
 >
 > Tech: Python, pandas, DuckDB, SQL, Streamlit, matplotlib, plotly
 
@@ -209,10 +215,10 @@ Based on this analysis, a partnerships team could:
 
 ## Resume Bullets
 
-- **Built a creator campaign intelligence pipeline** using real Instagram influencer data (25K+ posts), developing composite scoring models to benchmark sponsored content performance and shortlist creators by campaign objective (awareness vs engagement)
+- **Built an influencer campaign analytics prototype** using sampled public Instagram data (25K+ posts from Harvard Dataverse), developing composite scoring models to benchmark sponsored content performance and shortlist creators by campaign objective (awareness vs engagement)
 - **Designed a 4-page partnerships dashboard** (Streamlit) with executive overview, sponsored content benchmarking, creator shortlisting, and client recap — grounded in public KPI benchmarks from Humanz and Ubiquitous case studies
 - **Produced client-facing deliverables** including creator segmentation quadrant charts, objective-driven shortlists, and a business memo translating data findings into actionable recommendations for partnerships teams
 
 ---
 
-*This is a portfolio project using publicly available data. It is not affiliated with Humanz, Ubiquitous, or any creator-marketing platform. All benchmark data is sourced from publicly available case studies with attribution.*
+*This is an archived prototype using sampled public data. It is not affiliated with Humanz, Ubiquitous, or any creator-marketing platform. All benchmark data is sourced from publicly available case studies with attribution.*
