@@ -1,6 +1,6 @@
 # Influencer Campaign Analytics Prototype
 
-> **This repository is an earlier prototype exploring creator campaign analytics workflows.** My latest real-data portfolio version (YouTube Data API–based, Creator Campaign Intelligence) is in a separate repository.
+> **This repository is an earlier prototype exploring creator campaign analytics workflows.** My latest real-data portfolio version (YouTube Data API–based) is at [Creator Campaign Intelligence](https://github.com/bobaoxu2001/youtube_creator_data_pipeline).
 
 ---
 
