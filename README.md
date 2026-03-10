@@ -154,7 +154,9 @@ These provide directional context for campaign planning. All values are publicly
 ## Repo Structure
 
 ```
+influencer-campaign-analytics/
 ├── README.md
+├── LICENSE
 ├── requirements.txt
 ├── .gitignore
 ├── data/
@@ -192,7 +194,13 @@ These provide directional context for campaign planning. All values are publicly
 
 ## Quick Start
 
+**Requirements:** Python 3.10+
+
 ```bash
+git clone https://github.com/bobaoxu2001/influencer-campaign-analytics.git
+cd influencer-campaign-analytics
+
+# Install dependencies
 pip install -r requirements.txt
 
 # Run the pipeline (data is already included)
