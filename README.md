@@ -1,32 +1,30 @@
 # Creator Campaign Intelligence for Partnerships Teams
 
-A public-data prototype for creator marketing analytics — built to demonstrate how a data analyst supports creator selection, performance benchmarking, and campaign recommendations for partnerships teams like those at [Humanz](https://humanz.com) and [Ubiquitous](https://ubiquitousinfluence.com).
+> **Prototype project.** This repo demonstrates creator analytics workflow using public data. It is not a production system and does not use proprietary campaign data. See [Limitations](#limitations) for details.
+
+A data analytics prototype that scores, segments, and shortlists YouTube creators by campaign objective — built to show how a data analyst supports partnerships teams at companies like [Humanz](https://humanz.com) and [Ubiquitous](https://ubiquitousinfluence.com).
+
+- **990 real YouTube channels** scored across three composite dimensions (overall fit, awareness, engagement suitability)
+- **Tier-based segmentation** reveals how creator size relates to engagement efficiency and momentum
+- **Objective-driven shortlists** with risk-flag filtering for awareness, engagement, and balanced campaigns
+- **Benchmarked against public campaign KPIs** from Humanz and Ubiquitous case studies (CPM $4–$11 range)
+- **Client-ready deliverables** including quadrant charts, leaderboards, and a recap memo
 
 ---
 
-**What this project does:**
+## Dashboard Screenshots
 
-- Analyzes **990 real YouTube channels** across 18 categories and 49 countries
-- Scores creators on three dimensions: **overall fit, awareness suitability, and engagement suitability**
-- Segments creators into actionable cohorts (Star Creators, Awareness Drivers, Engagement Specialists, Niche/Emerging)
-- Benchmarks findings against **real public campaign KPIs** from Humanz and Ubiquitous case studies
-- Produces client-facing deliverables: shortlists, quadrant charts, recap memos
-
----
-
-### Dashboard Preview
-
-| Executive Overview | Creator Shortlist |
+| Awareness vs Engagement Quadrant | Creator Leaderboard |
 |---|---|
-| ![Data Overview](dashboard/screenshots/data_overview.png) | ![Awareness vs Engagement](dashboard/screenshots/awareness_vs_engagement.png) |
+| ![Awareness vs Engagement](dashboard/screenshots/awareness_vs_engagement.png) | ![Creator Leaderboard](dashboard/screenshots/creator_leaderboard.png) |
 
-| Creator Leaderboard | Campaign Benchmarks |
+| Composite Scores by Tier | Tier Segmentation |
 |---|---|
-| ![Creator Leaderboard](dashboard/screenshots/creator_leaderboard.png) | ![CPM Benchmarks](dashboard/screenshots/cpm_benchmarks.png) |
+| ![Scores by Tier](dashboard/screenshots/scores_by_tier.png) | ![Tier Segmentation](dashboard/screenshots/tier_segmentation.png) |
 
 ---
 
-## Why This Project Matters
+## Why This Project Exists
 
 Creator marketing platforms like Humanz and Ubiquitous help brands select creators, track campaign performance, and optimize spend. The data analyst supporting these teams needs to:
 
@@ -101,19 +99,19 @@ All key metrics are also defined as SQL queries in `sql/` for use with DuckDB or
 
 ## Key Findings
 
-Based on scoring 990 real YouTube channels:
+Based on scoring 990 real YouTube channels across the three composite dimensions:
 
-**1. Star Creators — those scoring high on both awareness and engagement — are rare.**
-Most channels specialize in one dimension. The quadrant chart (awareness vs engagement) is the most useful visual for explaining this tradeoff to partnerships teams.
+**1. Star Creators are rare — most channels specialize in either awareness or engagement, not both.**
+The awareness vs engagement quadrant chart shows that channels scoring in the top quartile on *both* dimensions are a small minority. Most high-subscriber channels score well on awareness but have below-median engagement suitability scores, while high-engagement channels tend to have smaller (within this dataset) subscriber bases. This tradeoff is the core insight for partnerships teams building multi-creator rosters.
 
-**2. Momentum and subscriber count are not strongly correlated.**
-Some mid-tier channels (12–30M) show stronger 30-day growth trajectories than mega channels (100M+), making them candidates for partnerships teams scouting rising talent.
+**2. Mid-tier channels (12–30M subscribers) show stronger momentum than mega channels (100M+).**
+The momentum score, which weights 60% recent views growth and 40% subscriber growth over the trailing 30-day window, is higher on average for the mid and macro_low tiers than for mega_plus channels. This suggests that partnerships teams scouting for rising talent should look beyond raw subscriber count.
 
-**3. Entertainment and Music dominate volume, but other categories show stronger engagement efficiency.**
-Categories like Education, How-To, and People/Lifestyle have higher engagement proxies relative to audience size, making them better fits for engagement-focused campaigns.
+**3. Category matters more for engagement efficiency than for reach.**
+Entertainment and Music categories dominate total view volume, but Education, How-To, and People/Lifestyle categories show higher engagement proxy values (views/subscribers) relative to their audience size. The scores-by-tier analysis confirms that engagement suitability scores are more evenly distributed across categories than awareness scores.
 
-**4. Risk flags are critical for shortlist quality.**
-Channels with missing 30-day data, negative subscriber growth, or very high upload volumes (potential network/compilation channels) should be flagged for manual review before recommending.
+**4. Risk flags meaningfully improve shortlist quality.**
+Channels with 3+ risk flags (missing 30-day data, negative subscriber growth, very high upload volume suggesting network/compilation channels) score lower on the Creator Fit composite even when their raw metrics look strong. Filtering these out before shortlisting reduces false positives in creator recommendations.
 
 ---
 
@@ -217,10 +215,11 @@ streamlit run dashboard/app.py
 
 ## Limitations
 
-This project is a **public-data prototype**, not a production analytics system.
+This project is a **public-data prototype**, not a production campaign analytics system.
 
+- **Sample data from a public dataset.** The underlying CSVs are derived from the [Global YouTube Statistics 2023](https://www.kaggle.com/datasets/nelgiriyewithana/global-youtube-statistics-2023) Kaggle dataset. They are not proprietary campaign data.
+- **No spend, click, or conversion data.** ROI, CPM, and CPA calculations require ad platform integration that is not available in this dataset. The benchmark KPIs are from publicly available case studies, not from internal campaign reporting.
 - **Channel-level data only.** The dataset provides channel aggregates, not per-video metrics. The engagement proxy (views/subscribers) is directional but not equivalent to per-post engagement rates.
-- **No spend or conversion data.** ROI, CPM, and CPA calculations require ad platform integration that is not available in this dataset.
 - **Top-of-market bias.** All 990 channels have 12M+ subscribers. The analysis does not cover nano, micro, or small mid-tier creators that are common in influencer marketing campaigns.
 - **Snapshot data.** Metrics reflect a 2023 point-in-time snapshot. A production system would use live API data.
 - **Benchmark context is directional.** Public case study KPIs provide reference points but may not reflect current market rates.

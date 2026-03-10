@@ -1,24 +1,36 @@
 # Creator Campaign Intelligence — Project Summary
 
-## One-Paragraph Summary
+## What This Project Is
 
-Built an end-to-end creator analytics pipeline designed for partnerships teams at creator marketing companies like Humanz and Ubiquitous. Using 990 real YouTube channels from the Global YouTube Statistics 2023 dataset, I developed a scoring framework that segments creators by campaign objective (awareness vs engagement), surfaces high-fit channels through composite scoring, and contextualizes findings against public campaign benchmarks. The project includes a full data pipeline (ingestion, cleaning, feature engineering, scoring), five analysis notebooks, SQL metric definitions, a Streamlit dashboard, and a client-facing recap memo — all built to demonstrate how a data analyst supports creator selection, performance benchmarking, and client-facing recommendations.
+A prototype analytics pipeline that scores and segments 990 real YouTube channels by campaign objective (awareness vs engagement), using public data to demonstrate the creator selection workflow used by partnerships teams at companies like Humanz and Ubiquitous.
+
+## What I Built
+
+- **Scoring framework** with three composite dimensions (Creator Fit, Awareness, Engagement Suitability), each 0–100 and percentile-based
+- **Objective-driven shortlists** filtered by risk flags, with recommendation labels (Star Creator, Awareness Driver, Engagement Specialist, Solid Performer)
+- **5-page Streamlit dashboard** with quadrant charts, leaderboards, tier breakdowns, and benchmark context
+- **Full reproducible pipeline** — ingestion, cleaning, feature engineering, scoring, and SQL metric definitions
+- **Client-facing deliverables** including a recap memo and benchmark reference table
+
+## Tech Stack
+
+Python, pandas, DuckDB, SQL, Streamlit, matplotlib, plotly, Jupyter notebooks
+
+## Why It's Relevant
+
+This project mirrors the day-to-day analytical work at creator marketing platforms: benchmarking creator cohorts, building defensible shortlists, and translating performance data into recommendations that partnerships teams can act on.
 
 ## Email Snippet
 
 > Hi [Name],
 >
-> After our conversation about the data analyst role, I put together a small analytics project inspired by the kind of creator-performance and partnerships support work we discussed.
+> I put together a prototype analytics project that demonstrates how I'd approach creator selection and performance benchmarking — the kind of work I understand your partnerships team handles.
 >
-> It uses real public YouTube channel data to prototype how a data analyst could support creator shortlisting, performance benchmarking, and client-facing recommendations — the kind of workflow I understand your partnerships team does day-to-day.
+> It uses real public YouTube channel data to score and segment creators by campaign objective, with a Streamlit dashboard and client-facing deliverables.
 >
-> Here's the repo: [GitHub link]
+> Repo: [GitHub link]
 >
-> Happy to walk through the methodology or any of the findings. Thanks again for your time.
+> Happy to walk through the methodology or findings.
 >
 > Best,
 > Allen
-
-## Tech Stack
-
-Python, pandas, DuckDB, SQL, Streamlit, matplotlib, plotly, Jupyter notebooks

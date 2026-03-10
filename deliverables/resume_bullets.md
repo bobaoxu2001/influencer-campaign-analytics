@@ -1,13 +1,13 @@
 # Resume Bullets
 
-Use any 2–3 of these depending on the role and context.
+Select 2–3 bullets depending on the role. Tailor the emphasis (pipeline, dashboard, or deliverables) to match the job description.
 
 ---
 
-- **Built a creator campaign intelligence pipeline** analyzing 990 real YouTube channels, developing composite scoring models (Creator Fit, Awareness, Engagement Suitability) to segment and shortlist creators by campaign objective for partnerships teams
+- Built a creator analytics pipeline scoring 990 YouTube channels on three composite dimensions (fit, awareness, engagement suitability) using percentile-based weighting, producing objective-driven shortlists with risk-flag filtering for partnerships teams
 
-- **Designed a 5-page partnerships dashboard** (Streamlit) with executive overview, cohort benchmarking, creator shortlisting with quadrant segmentation, campaign benchmark reference, and client-facing recap — grounded in public KPIs from Humanz and Ubiquitous case studies
+- Designed a 5-page Streamlit dashboard with awareness-vs-engagement quadrant segmentation, tier breakdowns, and campaign benchmark context sourced from public Humanz and Ubiquitous case studies
 
-- **Produced client-facing analytics deliverables** including creator segmentation frameworks, objective-driven shortlists with risk flags, and a business memo translating data findings into actionable recommendations for partnerships teams
+- Engineered creator-level features (engagement proxy, momentum score, posting intensity, consistency score) from public YouTube data and defined all metrics in both Python and SQL for pipeline reproducibility
 
-- **Engineered creator-level features** (engagement proxy, posting intensity, momentum score, consistency score) from public YouTube data and built a reproducible pipeline with SQL metric definitions, validation reporting, and DuckDB integration
+- Produced client-facing analytics deliverables translating scoring outputs into actionable creator recommendations, including shortlist rationale, cohort benchmarks, and a business recap memo
