@@ -1,111 +1,75 @@
-# Client Recap: Creator Campaign Intelligence Analysis
+# Client Recap: Creator Performance Analysis
 
 **Prepared for:** Partnerships Team
-**Date:** March 2025
 **Analyst:** Allen Xu
-**Scope:** Creator performance benchmarking and shortlisting using public Instagram influencer data
+**Scope:** Creator benchmarking and shortlisting using public YouTube channel data (990 channels)
 
 ---
 
-## 1. Objective
+## Objective
 
-Evaluate creator performance patterns to support the partnerships team in:
-- Identifying high-fit creators for upcoming brand campaigns
-- Benchmarking sponsored content performance against organic baselines
-- Providing data-backed recommendations for creator selection and campaign strategy
+Evaluate creator performance patterns to support the partnerships team in identifying high-fit channels for brand campaigns, benchmarking cohort-level performance, and generating data-backed shortlist recommendations.
 
----
+## What We Analyzed
 
-## 2. What We Found
+- 990 YouTube channels from the Global YouTube Statistics 2023 dataset
+- 18 content categories, 49 countries
+- Metrics: subscribers, total views, uploads, 30-day views, 30-day subscriber growth, estimated earnings
+- Supplemented with public campaign benchmarks from Humanz and Ubiquitous case studies
 
-### Sponsored Content Performance
+## What We Found
 
-Across ~25,000 posts from 500 creators, sponsored content shows a **moderate engagement rate dip compared to organic posts** — but this gap is not uniform. Key nuances:
-
-- **Nano and micro creators** (under 50K followers) maintain the smallest sponsored engagement drop, making them strong candidates for brands prioritizing authentic interaction
-- **Certain categories** (e.g., Fitness, Food, Health) demonstrate better sponsored content resilience than others
-- **Posting consistency** — creators who maintain regular cadence show more stable sponsored engagement over time
-
-### Creator Segmentation
-
-Our analysis identified four distinct creator cohorts:
+**Creator segmentation reveals four distinct cohorts:**
 
 | Cohort | Profile | Best For |
 |--------|---------|----------|
-| **Star Creators** | High reach + high engagement | Anchor placements in multi-creator campaigns |
-| **Engagement Specialists** | Niche audiences + strong interaction | Community-driven campaigns, product launches |
-| **Awareness Drivers** | Large follower base + broad reach | Top-of-funnel awareness, impression goals |
-| **Emerging Creators** | Growing audiences + improving metrics | Early partnerships, cost-effective reach |
+| Star Creators | High reach + high engagement | Anchor placements in multi-creator campaigns |
+| Engagement Specialists | Strong views-per-subscriber ratio, consistent posting | Community-driven and interaction-heavy campaigns |
+| Awareness Drivers | Large subscriber base, high total views | Top-of-funnel reach and impression goals |
+| Niche / Emerging | Moderate size, growing momentum | Early partnerships, cost-effective reach |
 
-### Benchmark Context
+**Momentum and size are not strongly correlated.** Some mid-tier channels show stronger 30-day growth trajectories than mega channels, making them promising candidates for partnerships teams looking for rising talent.
 
-Public benchmarks from Humanz and Ubiquitous case studies show:
-- CPM ranges from **$1.47 to $11.00** across TikTok campaigns
-- Top campaigns achieve **5M–8M+ views** with strong engagement
-- Engagement multipliers of **6x industry standard** are possible with the right creator-brand fit (Humanz x American Swiss)
+**Entertainment and Music dominate total volume**, but Education, How-To, and People/Lifestyle categories show stronger engagement proxies relative to audience size.
 
----
+## Who to Prioritize
 
-## 3. Who to Prioritize
+- **Awareness campaigns:** Macro and mega-tier channels with high 30-day views and broad upload libraries
+- **Engagement campaigns:** Mid-tier channels with high views-per-subscriber ratios and positive subscriber momentum
+- **Balanced campaigns:** Channels scoring in the top quartile of the Creator Fit Score, which weights engagement, posting intensity, momentum, and consistency
 
-Based on our **Creator Fit Score** (a composite of engagement quality, sponsored reliability, posting consistency, and brand openness):
+## What to Monitor
 
-**For awareness-focused campaigns:**
-- Prioritize mid and macro-tier creators with 50K+ followers
-- Look for creators with broad category appeal and consistent posting
-- Target categories with proven reach track records
+- **Momentum trends:** Is a shortlisted channel gaining or losing 30-day momentum?
+- **Risk flags:** Channels with missing data, negative subscriber growth, or very high upload volumes (possible network channels) should be reviewed before recommending
+- **Category saturation:** If multiple shortlisted channels occupy the same category, consider diversifying
 
-**For engagement-focused campaigns:**
-- Prioritize micro and nano-tier creators with 3%+ organic engagement rates
-- Select creators whose sponsored engagement rate stays within 15% of organic baseline
-- Favor creators with high comment-to-like ratios (indicates deeper audience interaction)
+## What to Test Next
 
-**For balanced campaigns:**
-- Use mid-tier creators (50K–500K) as campaign anchors
-- Mix 2–3 categories for audience diversity
-- Weight consistency score heavily in final selection
-
----
-
-## 4. What to Monitor
-
-Once campaigns are live, track these leading indicators:
-
-- **Sponsored engagement decay curve** — Does a creator's sponsored ER drop with each successive brand collaboration?
-- **Category saturation signals** — Are sponsored post rates in certain categories approaching diminishing returns?
-- **Content performance by posting window** — Sponsored and organic posts show different hourly engagement patterns; scheduling optimization is a low-hanging-fruit improvement
-- **Audience overlap** — In multi-creator campaigns, monitor for redundant reach across similar follower bases
-
----
-
-## 5. What to Test Next
-
-| Test | Hypothesis | Expected Impact |
-|------|-----------|-----------------|
-| Micro vs mid-tier A/B test | Micro creators deliver higher ER at lower cost per engagement | Validate cost-efficiency for engagement-focused briefs |
-| Hashtag count guidelines | Moderate hashtag usage (5–15) outperforms heavy hashtag loading | Improve sponsored content performance by 10–15% |
-| Posting time optimization | Sponsored content posted during off-peak hours underperforms | Align content scheduling with peak engagement windows |
-| Multi-post creator partnerships | Creators with 3+ sponsored posts show more stable ER than one-off placements | Build case for longer-term creator relationships |
-
----
+| Test | Hypothesis |
+|------|-----------|
+| Mid-tier vs mega-tier A/B | Mid-tier channels deliver better engagement efficiency at lower partnership costs |
+| Category diversification | Mixed-category creator rosters reach more distinct audience segments |
+| Momentum-weighted shortlisting | Weighting recent growth more heavily surfaces better campaign performers |
 
 ## Limitations
 
-- This analysis uses **sample data modeled after public research datasets**, not proprietary campaign exports
-- **Spend, click, and conversion data** are not available in the primary dataset — ROI calculations would require integration with ad platform data
-- Benchmarks from public case studies provide **directional guidance** but may not reflect current pricing or performance norms
-- Sample size (500 creators, ~25K posts) is sufficient for pattern identification but may not capture niche category dynamics
+- This analysis uses **public channel-level data**, not proprietary campaign data
+- **Per-video engagement** (likes, comments per video) is not available — engagement proxy is views/subscribers
+- **Spend and conversion data** are not included — ROI calculations require ad platform integration
+- Tier definitions reflect the top ~1,000 global channels (all 12M+ subscribers), not the standard nano-to-mega taxonomy
+
+## Benchmark Context
+
+Public campaign benchmarks for reference:
+
+| Campaign | CPM | Views | Engagements | Source |
+|----------|-----|-------|-------------|--------|
+| Ubiquitous x Lyft | $4.31 | 8.1M | — | ubiquitousinfluence.com |
+| Ubiquitous x Zilla | $11.00 | 9.1M | 253K | ubiquitousinfluence.com |
+| Ubiquitous x Hers | $5.00 | — | — | ubiquitousinfluence.com |
+| Humanz x Absolut | — | — | 225.8K | humanz.com |
 
 ---
 
-## Next Steps for Production
-
-1. **Connect to live data** — Integrate with Instagram Graph API or creator marketing platform APIs for real-time metrics
-2. **Add spend layer** — Overlay campaign cost data to enable true ROI and CPM calculations
-3. **Automate scoring** — Run the creator fit score pipeline on a weekly cadence to surface emerging talent
-4. **Build alert system** — Flag creators whose engagement metrics shift significantly between reporting periods
-5. **Expand platform coverage** — Extend analysis to TikTok and YouTube to support multi-platform campaign planning
-
----
-
-*This recap is part of the Creator Campaign Intelligence portfolio project. Data sources and methodology are documented in the [project README](../README.md).*
+*This recap is part of the Creator Campaign Intelligence portfolio project. See [project README](../README.md) for full methodology and data provenance.*

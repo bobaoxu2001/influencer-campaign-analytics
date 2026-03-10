@@ -1,94 +1,153 @@
-# Influencer Campaign Analytics Prototype
+# Creator Campaign Intelligence for Partnerships Teams
 
-> **This repository is an earlier prototype exploring creator campaign analytics workflows.** My latest real-data portfolio version (YouTube Data API–based) is at [Creator Campaign Intelligence](https://github.com/bobaoxu2001/youtube_creator_data_pipeline).
-
----
-
-## Why This Project Exists
-
-If I were supporting the partnerships team at a creator-marketing platform like [Humanz](https://humanz.com) or [Ubiquitous](https://ubiquitousinfluence.com), how would I use public creator data to:
-
-1. **Benchmark sponsored content performance** against organic baselines
-2. **Identify high-fit creators** for different campaign objectives
-3. **Summarize campaign-relevant insights** for client-facing teams
-
-This project simulates that workflow. It uses a sampled subset of a public influencer dataset (see Data Sources) to benchmark creator cohorts, compare sponsored vs organic engagement, and generate shortlist recommendations for partnerships teams.
+A public-data prototype for creator marketing analytics — built to demonstrate how a data analyst supports creator selection, performance benchmarking, and campaign recommendations for partnerships teams like those at [Humanz](https://humanz.com) and [Ubiquitous](https://ubiquitousinfluence.com).
 
 ---
 
-## Key Insights
+**What this project does:**
 
-### 1. Micro and mid-tier creators are the strongest partnership candidates
-
-They deliver the best combination of engagement quality, sponsored content reliability, and posting consistency. Larger creators have reach but show steeper sponsored engagement drops.
-
-### 2. Sponsored content doesn't always underperform
-
-The engagement gap varies significantly by category and follower tier. Certain categories (Fitness, Food, Health) and certain creator profiles maintain near-organic engagement even with sponsorship disclosures.
-
-### 3. Partnerships teams should shortlist by objective, not just by size
-
-Our scoring framework segments creators into four cohorts:
-
-| Cohort | Profile | Best For |
-|--------|---------|----------|
-| Star Creators | High reach + high engagement | Anchor placements |
-| Engagement Specialists | Niche audiences + strong interaction | Community campaigns |
-| Awareness Drivers | Large follower base + broad reach | Impression goals |
-| Emerging Creators | Growing audiences + improving metrics | Early partnerships |
+- Analyzes **990 real YouTube channels** across 18 categories and 49 countries
+- Scores creators on three dimensions: **overall fit, awareness suitability, and engagement suitability**
+- Segments creators into actionable cohorts (Star Creators, Awareness Drivers, Engagement Specialists, Niche/Emerging)
+- Benchmarks findings against **real public campaign KPIs** from Humanz and Ubiquitous case studies
+- Produces client-facing deliverables: shortlists, quadrant charts, recap memos
 
 ---
 
-## Data Sources
+### Dashboard Preview
 
-### Primary Dataset
+| Executive Overview | Creator Shortlist |
+|---|---|
+| ![Data Overview](dashboard/screenshots/data_overview.png) | ![Awareness vs Engagement](dashboard/screenshots/awareness_vs_engagement.png) |
 
-**Seungbae Kim's Instagram Influencer Dataset / Influencer and Brand Dataset**
-- [Harvard Dataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/OQAQWK)
-- Full dataset: 33,935 influencers, 10M+ Instagram posts
-- Fields: caption, hashtags, timestamp, sponsorship flag, likes, comments
-- **This repo uses pre-generated sample CSVs** (500 creators, ~25K posts) plus a reproducible sampling script. These samples are a subset of the public dataset — useful for prototyping, not production.
+| Creator Leaderboard | Campaign Benchmarks |
+|---|---|
+| ![Creator Leaderboard](dashboard/screenshots/creator_leaderboard.png) | ![CPM Benchmarks](dashboard/screenshots/cpm_benchmarks.png) |
 
-### Benchmark Layer
+---
 
-Public KPIs from official Humanz and Ubiquitous case studies:
+## Why This Project Matters
 
-| Campaign | Brand | Views | CPM | Engagements | Source |
-|----------|-------|-------|-----|-------------|--------|
-| Lyft TikTok | Lyft | 8.1M | $4.31 | — | [Ubiquitous](https://ubiquitousinfluence.com/case-studies/lyft) |
-| Zilla Body | Zilla | 9.1M | $11.00 | 253K | [Ubiquitous](https://ubiquitousinfluence.com/case-studies/zilla) |
-| Hers Campaign | Hers | — | $5.00 | — | [Ubiquitous](https://ubiquitousinfluence.com/case-studies/hers) |
-| Absolut Vodka | Absolut | — | — | 225.8K | [Humanz](https://humanz.com/case-studies) |
-| American Swiss | American Swiss | — | — | 6x industry standard | [Humanz](https://humanz.com/case-studies) |
+Creator marketing platforms like Humanz and Ubiquitous help brands select creators, track campaign performance, and optimize spend. The data analyst supporting these teams needs to:
 
-All benchmark values are publicly available. No values were fabricated.
+1. **Benchmark creator cohorts** — Which tiers and categories perform best for different objectives?
+2. **Score and shortlist creators** — Who should a partnerships team recommend, and why?
+3. **Translate metrics into business language** — Client-facing teams need clear, defensible recommendations, not raw data tables.
+
+This project prototypes that workflow using publicly available data.
+
+---
+
+## Data Sources and Provenance
+
+### What's in this repo
+
+| Dataset | Source | Records | Type |
+|---------|--------|---------|------|
+| YouTube channel data | [Global YouTube Statistics 2023](https://www.kaggle.com/datasets/nelgiriyewithana/global-youtube-statistics-2023) (Kaggle) | 990 channels | Real public data |
+| Campaign benchmarks | [Humanz](https://humanz.com/case-studies) and [Ubiquitous](https://ubiquitousinfluence.com/case-studies) case studies | 6 campaigns | Real public KPIs, source-attributed |
+
+The primary dataset was collected from public YouTube channel data and published on Kaggle by Nidula Elgiriyewithana. It contains the top ~1,000 YouTube channels globally by subscriber count, with metrics including subscribers, total views, uploads, 30-day trailing performance, and estimated earnings.
+
+A [GitHub mirror](https://github.com/IrisMejuto/Global-YouTube-Statistics) of the dataset is also available.
+
+### What's NOT in this repo
+
+- Per-video engagement (likes, comments on individual videos)
+- Sponsored vs organic content flags
+- Ad spend, click-through rates, or conversion data
+- Audience demographics or brand safety scores
+
+These would be available through the YouTube Data API or proprietary campaign platforms. This is a known limitation — see [Limitations](#limitations) below.
+
+### Tier definitions
+
+Because this dataset contains only the top ~1,000 global channels, all channels have 12M+ subscribers. The tier labels used in this project (mid, macro_low, macro, mega, mega_plus) reflect the distribution *within this dataset* and do not correspond to the standard nano/micro/macro taxonomy used in typical influencer marketing. This is documented throughout the analysis.
 
 ---
 
 ## Methodology
 
-### Feature Engineering
+### Pipeline
 
-| Feature | Description |
-|---------|-------------|
-| `engagement_rate` | (likes + comments) / followers x 100 |
-| `sponsored_er` / `organic_er` | Engagement rate split by post type |
-| `sponsored_lift` | % change in ER for sponsored vs organic |
-| `consistency_score` | Inverse of posting cadence variability (0-100) |
-| `creator_fit_score` | Composite: engagement quality + sponsored reliability + consistency + brand openness |
-| `awareness_score` | Weighted: reach + volume + brand mention breadth |
-| `engagement_suitability_score` | Weighted: ER + comment quality + consistency |
+```
+raw data → cleaning → feature engineering → scoring → shortlisting → dashboard
+```
 
-### Analysis Pipeline
+1. **Ingestion:** Load raw CSV, validate schema and row counts
+2. **Cleaning:** Remove platform-owned placeholders, standardize columns, handle nulls
+3. **Feature Engineering:** Derive engagement proxy, posting intensity, momentum, consistency, earnings efficiency
+4. **Scoring:** Compute Creator Fit Score, Awareness Score, Engagement Suitability Score (all 0–100, percentile-based composites)
+5. **Shortlisting:** Generate objective-driven shortlists with risk flags and recommendation labels
+6. **Dashboard:** 5-page Streamlit app for interactive exploration
 
-1. **Data Audit** — Quality checks, distribution analysis, missing value assessment
-2. **Feature Engineering** — Creator-level aggregations, sponsored/organic splits, derived metrics
-3. **Sponsored vs Organic Analysis** — Tier-level and category-level comparisons, posting pattern analysis
-4. **Creator Scoring & Shortlisting** — Composite scoring, quadrant segmentation, objective-driven shortlists
+### Feature Definitions
 
-### SQL Metric Definitions
+| Feature | Formula | What It Measures |
+|---------|---------|-----------------|
+| `engagement_proxy` | total_views / subscribers | Audience engagement depth (channel-level proxy) |
+| `posting_intensity` | uploads / channel_age_years | Content production cadence |
+| `momentum_score` | Weighted: 60% views momentum + 40% subscriber momentum | Recent growth trajectory |
+| `consistency_score` | Weighted: 30% age + 40% posting + 30% growth stability | Reliability and maturity |
+| `creator_fit_score` | 25% engagement + 20% posting + 25% momentum + 20% consistency + 10% uploads | Overall partnership suitability |
+| `awareness_score` | 35% subscribers + 30% views + 20% recent views + 15% uploads | Reach/impression potential |
+| `engagement_suitability_score` | 35% engagement proxy + 25% avg views/video + 20% sub momentum + 20% consistency | Interaction quality |
+
+### SQL Definitions
 
 All key metrics are also defined as SQL queries in `sql/` for use with DuckDB or any SQL-compatible warehouse.
+
+---
+
+## Key Findings
+
+Based on scoring 990 real YouTube channels:
+
+**1. Star Creators — those scoring high on both awareness and engagement — are rare.**
+Most channels specialize in one dimension. The quadrant chart (awareness vs engagement) is the most useful visual for explaining this tradeoff to partnerships teams.
+
+**2. Momentum and subscriber count are not strongly correlated.**
+Some mid-tier channels (12–30M) show stronger 30-day growth trajectories than mega channels (100M+), making them candidates for partnerships teams scouting rising talent.
+
+**3. Entertainment and Music dominate volume, but other categories show stronger engagement efficiency.**
+Categories like Education, How-To, and People/Lifestyle have higher engagement proxies relative to audience size, making them better fits for engagement-focused campaigns.
+
+**4. Risk flags are critical for shortlist quality.**
+Channels with missing 30-day data, negative subscriber growth, or very high upload volumes (potential network/compilation channels) should be flagged for manual review before recommending.
+
+---
+
+## Creator Shortlisting Framework
+
+The scoring framework produces three shortlists:
+
+| Shortlist | Optimized For | Key Signals |
+|-----------|---------------|-------------|
+| **Balanced** | Overall fit | Composite of all dimensions |
+| **Awareness** | Reach campaigns | Subscriber count, total views, 30-day views |
+| **Engagement** | Interaction campaigns | Views/subscriber, avg views/video, sub momentum |
+
+Each shortlist filters out channels with 3+ risk flags and adds a recommendation label:
+- **Star Creator** — high on both awareness and engagement
+- **Awareness Driver** — prioritize for reach campaigns
+- **Engagement Specialist** — prioritize for interaction goals
+- **Solid Performer** — versatile for mixed campaigns
+
+---
+
+## Benchmark Context
+
+Public KPIs from Humanz and Ubiquitous case studies:
+
+| Campaign | Brand | CPM | Views | Engagements | Source |
+|----------|-------|-----|-------|-------------|--------|
+| Lyft TikTok | Lyft | $4.31 | 8.1M | — | [Ubiquitous](https://ubiquitousinfluence.com/case-studies/lyft) |
+| Zilla Body | Zilla | $11.00 | 9.1M | 253K | [Ubiquitous](https://ubiquitousinfluence.com/case-studies/zilla) |
+| Hers | Hers | $5.00 | — | — | [Ubiquitous](https://ubiquitousinfluence.com/case-studies/hers) |
+| Absolut Vodka | Absolut | — | — | 225.8K | [Humanz](https://humanz.com/case-studies) |
+| American Swiss | American Swiss | — | — | 6x industry avg | [Humanz](https://humanz.com/case-studies) |
+
+These provide directional context for campaign planning. All values are publicly available and source-attributed.
 
 ---
 
@@ -101,39 +160,34 @@ influencer-campaign-analytics/
 ├── requirements.txt
 ├── .gitignore
 ├── data/
-│   ├── README.md                          # Data dictionary
-│   └── sample/
-│       ├── creator_sample.csv             # 500 creators
-│       ├── post_sample.csv                # ~25K posts
-│       └── case_study_benchmarks.csv      # Public benchmark KPIs
+│   ├── README.md                    # Data dictionary and provenance
+│   ├── raw/                         # Original unmodified dataset
+│   ├── processed/                   # Cleaned, featured, and scored CSVs
+│   └── benchmarks/                  # Case study benchmark table
 ├── notebooks/
 │   ├── 01_data_audit.ipynb
-│   ├── 02_feature_engineering.ipynb
-│   ├── 03_sponsored_vs_organic.ipynb
-│   └── 04_creator_scoring.ipynb
+│   ├── 02_cleaning_and_feature_engineering.ipynb
+│   ├── 03_creator_segmentation.ipynb
+│   ├── 04_benchmarking.ipynb
+│   └── 05_shortlisting_and_recommendations.ipynb
 ├── sql/
 │   ├── creator_metrics.sql
-│   ├── sponsored_benchmarks.sql
-│   └── creator_shortlist.sql
+│   ├── benchmark_metrics.sql
+│   └── shortlist_logic.sql
 ├── src/
-│   ├── __init__.py
-│   ├── ingest.py                          # Data loading utilities
-│   ├── clean.py                           # Cleaning and validation
-│   ├── features.py                        # Feature engineering
-│   ├── scoring.py                         # Creator scoring and shortlisting
-│   ├── utils.py                           # Visualization helpers
-│   └── generate_sample.py                 # Reproducible sample generation
+│   ├── ingest_real_data.py          # Data loading and DuckDB setup
+│   ├── clean_real_data.py           # Cleaning and validation
+│   ├── feature_engineering.py       # Feature derivation
+│   ├── scoring.py                   # Composite scoring and shortlisting
+│   ├── benchmark_loader.py          # Benchmark table creation
+│   └── utils.py                     # Visualization helpers
 ├── dashboard/
-│   ├── app.py                             # Streamlit dashboard (4 pages)
-│   ├── awareness_vs_engagement_quadrant.png
-│   ├── creator_leaderboard.png
-│   ├── scores_by_tier.png
-│   ├── sponsored_vs_organic_by_tier.png
-│   ├── sponsored_lift_by_category.png
-│   ├── sponsored_split.png
-│   └── tier_distribution.png
+│   ├── app.py                       # 5-page Streamlit dashboard
+│   └── screenshots/                 # 10 exported chart PNGs
 └── deliverables/
-    └── client_recap_sample.md             # Business-facing memo
+    ├── client_recap_sample.md       # Business-facing memo
+    ├── recruiter_share_summary.md   # Project summary + email snippet
+    └── resume_bullets.md            # Resume-ready bullet points
 ```
 
 ---
@@ -149,10 +203,10 @@ cd influencer-campaign-analytics
 # Install dependencies
 pip install -r requirements.txt
 
-# Regenerate sample data (optional — samples are included)
-python src/generate_sample.py
+# Run the pipeline (data is already included)
+cd src && python clean_real_data.py && python feature_engineering.py && python benchmark_loader.py && python scoring.py && cd ..
 
-# Run analysis notebooks
+# Explore analysis
 jupyter notebook notebooks/
 
 # Launch dashboard
@@ -161,70 +215,29 @@ streamlit run dashboard/app.py
 
 ---
 
-## Dashboard Pages
-
-| Page | Purpose |
-|------|---------|
-| **Executive Overview** | KPIs, tier distributions, category benchmarks, public case study reference |
-| **Sponsored Content Benchmarking** | Sponsored vs organic ER by tier and category, posting time analysis |
-| **Creator Shortlisting** | Quadrant chart, fit scores, objective-driven shortlists |
-| **Partnerships Recap** | Findings summary, creator mix recommendations, test ideas |
-
----
-
-## Example Recommendations for a Partnerships Team
-
-Based on this analysis, a partnerships team could:
-
-1. **Prioritize micro and mid-tier creators** for engagement-focused campaigns — they deliver 2-3x the engagement rate of macro/mega creators at a fraction of the cost
-2. **Use the quadrant chart** in client meetings to explain the tradeoff between reach and engagement, and why the recommended creator mix includes both profile types
-3. **Set expectations around sponsored ER** — show clients the typical 10-15% engagement dip for sponsored content, but highlight categories and creator profiles where the gap is smaller
-4. **Build longer-term creator relationships** — creators with 3+ sponsored posts show more stable engagement than one-off placements
-
----
-
-## Prototype / Archived Status
-
-This repo is retained as an **earlier concept version** of creator campaign analytics work. It uses sampled public data and demonstrates the methodology; it is not actively developed. The approach is preserved for reference.
-
----
-
 ## Limitations
 
-- **Sample data, not proprietary campaigns.** This project uses a sampled subset of a public influencer dataset as a proxy. In a production setting, this pipeline would connect to live campaign data and creator APIs
-- **No spend or conversion data.** The primary dataset does not include ad spend, clicks, or conversions. ROI calculations would require integration with ad platform data
-- **Instagram only.** This analysis covers Instagram. A full partnerships analytics stack would include TikTok and YouTube
-- **Benchmark directional, not definitive.** Public case study KPIs provide context but may not reflect current market rates
+This project is a **public-data prototype**, not a production analytics system.
+
+- **Channel-level data only.** The dataset provides channel aggregates, not per-video metrics. The engagement proxy (views/subscribers) is directional but not equivalent to per-post engagement rates.
+- **No spend or conversion data.** ROI, CPM, and CPA calculations require ad platform integration that is not available in this dataset.
+- **Top-of-market bias.** All 990 channels have 12M+ subscribers. The analysis does not cover nano, micro, or small mid-tier creators that are common in influencer marketing campaigns.
+- **Snapshot data.** Metrics reflect a 2023 point-in-time snapshot. A production system would use live API data.
+- **Benchmark context is directional.** Public case study KPIs provide reference points but may not reflect current market rates.
 
 ---
 
-## Next Steps for a Real Production Setting
+## What This Would Look Like in Production
 
-1. **Connect to live APIs** — Instagram Graph API, TikTok Creator Marketplace API, or platform-specific data feeds
-2. **Add a spend and conversion layer** — Enable true ROI, CPM, and CPA calculations
-3. **Automate scoring on a weekly cadence** — Surface emerging talent and flag performance shifts
-4. **Build alerting** — Notify when a shortlisted creator's metrics change significantly
-5. **Expand to multi-platform** — Unified creator profiles across Instagram, TikTok, and YouTube
-6. **Integrate with CRM** — Link creator scores to partnership pipeline and campaign history
-
----
-
-## LinkedIn / Email Summary
-
-> **Influencer Campaign Analytics Prototype**
->
-> Built an earlier prototype of a creator campaign analytics pipeline. Using a sampled public influencer dataset (500 creators, 25K+ posts from Harvard Dataverse), developed a scoring framework to benchmark sponsored content performance, segment creators by campaign objective, and generate shortlist recommendations — with methodology grounded in public benchmarks from companies like Humanz and Ubiquitous.
->
-> Tech: Python, pandas, DuckDB, SQL, Streamlit, matplotlib, plotly
+| This Prototype | Production System |
+|----------------|-------------------|
+| Public Kaggle dataset | YouTube Data API v3 + platform APIs |
+| Channel-level aggregates | Per-video engagement metrics |
+| Estimated earnings | Actual campaign spend data |
+| Manual benchmark table | Live campaign performance feeds |
+| Static scoring | Automated weekly scoring with alerts |
+| Single-platform | Multi-platform (YouTube + TikTok + Instagram) |
 
 ---
 
-## Resume Bullets
-
-- **Built an influencer campaign analytics prototype** using sampled public Instagram data (25K+ posts from Harvard Dataverse), developing composite scoring models to benchmark sponsored content performance and shortlist creators by campaign objective (awareness vs engagement)
-- **Designed a 4-page partnerships dashboard** (Streamlit) with executive overview, sponsored content benchmarking, creator shortlisting, and client recap — grounded in public KPI benchmarks from Humanz and Ubiquitous case studies
-- **Produced client-facing deliverables** including creator segmentation quadrant charts, objective-driven shortlists, and a business memo translating data findings into actionable recommendations for partnerships teams
-
----
-
-*This is an archived prototype using sampled public data. It is not affiliated with Humanz, Ubiquitous, or any creator-marketing platform. All benchmark data is sourced from publicly available case studies with attribution.*
+*This is a portfolio project using publicly available data. It is not affiliated with Humanz, Ubiquitous, or any creator marketing platform. All benchmark data is sourced from publicly available case studies with attribution.*
