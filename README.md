@@ -1,6 +1,6 @@
 # Influencer Campaign Analytics Prototype
 
-> **This repository is an earlier prototype exploring creator campaign analytics workflows.** My latest real-data portfolio version (YouTube Data API–based) is available at [Creator Campaign Intelligence](https://github.com/bobaoxu2001/youtube_creator_data_pipeline).
+> **This repository is an earlier prototype exploring creator campaign analytics workflows.** My latest real-data portfolio version (YouTube Data API–based, Creator Campaign Intelligence) is in a separate repository.
 
 ---
 
@@ -97,6 +97,7 @@ All key metrics are also defined as SQL queries in `sql/` for use with DuckDB or
 ```
 influencer-campaign-analytics/
 ├── README.md
+├── LICENSE
 ├── requirements.txt
 ├── .gitignore
 ├── data/
@@ -139,7 +140,12 @@ influencer-campaign-analytics/
 
 ## Quick Start
 
+**Requirements:** Python 3.10+
+
 ```bash
+git clone https://github.com/bobaoxu2001/influencer-campaign-analytics.git
+cd influencer-campaign-analytics
+
 # Install dependencies
 pip install -r requirements.txt
 
